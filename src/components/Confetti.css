@@ -1,0 +1,37 @@
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 50;
+}
+
+.confetti--full {
+  position: fixed;
+}
+
+.confetti__particle {
+  position: absolute;
+  animation: confetti-burst 1s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform:
+      translate(
+        calc(cos(var(--angle)) * var(--distance)),
+        calc(sin(var(--angle)) * var(--distance) + 60px)
+      )
+      rotate(var(--rotation))
+      scale(0.2);
+    opacity: 0;
+  }
+}

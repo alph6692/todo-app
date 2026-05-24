@@ -16,123 +16,11 @@ interface SessionRecord {
   phase: Phase;
 }
 
-// ========== 白噪音生成器 ==========
-
-function createNoise(type: NoiseType): (() => void) {
-  const ctx = new AudioContext();
-  const masterGain = ctx.createGain();
-  masterGain.gain.value = 0.3;
-  masterGain.connect(ctx.destination);
-
-  const cleanupFns: (() => void)[] = [];
-
-  if (type === "rain") {
-    // 褐噪声 + 低通滤波器模拟雨声
-    const bufferSize = 4096;
-    const node = ctx.createScriptProcessor(bufferSize, 1, 1);
-    let lastOut = 0;
-    node.onaudioprocess = (e) => {
-      const output = e.outputBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        lastOut = (lastOut + 0.02 * white) / 1.02;
-        output[i] = lastOut * 1.5;
-      }
-    };
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 800;
-    node.connect(filter);
-    filter.connect(masterGain);
-    cleanupFns.push(() => { node.disconnect(); filter.disconnect(); });
-  }
-
-  if (type === "cafe") {
-    // 低频嗡嗡 + 稀疏高频
-    const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.value = 60;
-    const oscGain = ctx.createGain();
-    oscGain.gain.value = 0.15;
-    osc.connect(oscGain);
-    oscGain.connect(masterGain);
-    osc.start();
-    cleanupFns.push(() => { osc.stop(); osc.disconnect(); oscGain.disconnect(); });
-
-    // 间歇性杯碟碰撞
-    let running = true;
-    function clink() {
-      if (!running) return;
-      const t = ctx.currentTime;
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "sine";
-      o.frequency.value = 2000 + Math.random() * 3000;
-      g.gain.setValueAtTime(0.1, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      o.connect(g);
-      g.connect(masterGain);
-      o.start(t);
-      o.stop(t + 0.2);
-      setTimeout(clink, 2000 + Math.random() * 4000);
-    }
-    clink();
-    cleanupFns.push(() => { running = false; });
-  }
-
-  if (type === "forest") {
-    // 粉红噪声 + 鸟鸣
-    const bufferSize = 4096;
-    const node = ctx.createScriptProcessor(bufferSize, 1, 1);
-    let b0 = 0, b1 = 0, b2 = 0;
-    node.onaudioprocess = (e) => {
-      const output = e.outputBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        b0 = 0.99886 * b0 + white * 0.0555179;
-        b1 = 0.99332 * b1 + white * 0.0750759;
-        b2 = 0.969 * b2 + white * 0.153852;
-        output[i] = (b0 + b1 + b2 + white * 0.5362) * 0.11;
-      }
-    };
-    const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.frequency.value = 1500;
-    filter.Q.value = 0.5;
-    node.connect(filter);
-    filter.connect(masterGain);
-    cleanupFns.push(() => { node.disconnect(); filter.disconnect(); });
-
-    // 间歇鸟鸣
-    let running = true;
-    function chirp() {
-      if (!running) return;
-      const t = ctx.currentTime;
-      const freq = 2500 + Math.random() * 2000;
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "sine";
-      o.frequency.setValueAtTime(freq, t);
-      o.frequency.linearRampToValueAtTime(freq * 1.3, t + 0.08);
-      o.frequency.linearRampToValueAtTime(freq * 0.9, t + 0.16);
-      g.gain.setValueAtTime(0.08, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-      o.connect(g);
-      g.connect(masterGain);
-      o.start(t);
-      o.stop(t + 0.25);
-      setTimeout(chirp, 3000 + Math.random() * 6000);
-    }
-    chirp();
-    cleanupFns.push(() => { running = false; });
-  }
-
-  return () => {
-    cleanupFns.forEach((fn) => fn());
-    masterGain.disconnect();
-    ctx.close();
-  };
-}
+const NOISE_FILES: Record<string, string> = {
+  rain: "/sounds/rain.wav",
+  cafe: "/sounds/cafe.wav",
+  forest: "/sounds/forest.wav",
+};
 
 // ========== 响铃 ==========
 
@@ -163,7 +51,7 @@ export default function PomodoroTimer() {
   const [activeNoise, setActiveNoise] = useState<NoiseType>(null);
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const noiseCleanupRef = useRef<(() => void) | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const totalSeconds = phase === "work" ? WORK_SECS : BREAK_SECS;
   const minutes = Math.floor(secondsLeft / 60);
@@ -223,27 +111,31 @@ export default function PomodoroTimer() {
 
   // 白噪音切换
   function toggleNoise(type: NoiseType) {
-    if (noiseCleanupRef.current) {
-      noiseCleanupRef.current();
-      noiseCleanupRef.current = null;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
     }
     if (activeNoise === type) {
       setActiveNoise(null);
     } else {
       setActiveNoise(type);
-      noiseCleanupRef.current = createNoise(type);
+      const audio = new Audio(NOISE_FILES[type]);
+      audio.loop = true;
+      audio.volume = 0.4;
+      audio.play().catch(() => {});
+      audioRef.current = audio;
     }
   }
 
-  // 清理白噪音
+  // 清理
   useEffect(() => {
     return () => {
-      if (noiseCleanupRef.current) noiseCleanupRef.current();
+      if (audioRef.current) audioRef.current.pause();
     };
   }, []);
 
   const noiseOptions: { type: NoiseType; label: string; emoji: string }[] = [
-    { type: "rain", label: "雨声", emoji: "🌧" },
+    { type: "rain", label: "雨声", emoji: "��" },
     { type: "cafe", label: "咖啡馆", emoji: "☕" },
     { type: "forest", label: "森林", emoji: "🌲" },
   ];

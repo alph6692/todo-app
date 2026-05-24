@@ -93,3 +93,19 @@
   border-radius: 4px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.progress__cheer {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: cheer-bounce 0.6s ease;
+}
+
+@keyframes cheer-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}

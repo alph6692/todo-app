@@ -1,13 +1,26 @@
+import { useState, useRef } from "react";
 import { useTodoContext } from "../context/TodoContext";
+import Confetti from "./Confetti";
 import "./TaskProgress.css";
 
 export default function TaskProgress() {
   const { todos } = useTodoContext();
+  const [showFullConfetti, setShowFullConfetti] = useState(false);
+  const prevPercent = useRef(0);
 
   const total = todos.length;
   const completed = todos.filter((t) => t.completed).length;
   const active = total - completed;
   const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  // 达到 100% 时触发全屏庆祝
+  if (percent === 100 && prevPercent.current < 100 && total > 0) {
+    prevPercent.current = 100;
+    setTimeout(() => setShowFullConfetti(true), 200);
+  }
+  if (percent < 100) {
+    prevPercent.current = percent;
+  }
 
   // SVG 环形进度参数
   const radius = 54;
@@ -16,6 +29,11 @@ export default function TaskProgress() {
 
   return (
     <div className="progress">
+      <Confetti active={showFullConfetti} fullScreen onDone={() => setShowFullConfetti(false)} />
+
+      {percent === 100 && total > 0 && (
+        <div className="progress__cheer">全部完成！太棒了 🎉</div>
+      )}
       <div className="progress__ring-container">
         <svg className="progress__ring" viewBox="0 0 120 120">
           <defs>

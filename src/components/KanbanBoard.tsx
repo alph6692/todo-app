@@ -1,14 +1,32 @@
 import { useTodoContext } from "../context/TodoContext";
-import { KANBAN_COLUMNS } from "../types/todo";
-import type { TaskStatus } from "../types/todo";
+import { KANBAN_COLUMNS, TaskStatus } from "../types/todo";
 import KanbanCard from "./KanbanCard";
 import "./KanbanBoard.css";
+
+function cheer() {
+  const ctx = new AudioContext();
+  [523, 659, 784].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = "sine";
+    const t = ctx.currentTime + i * 0.1;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.15, t + 0.03);
+    gain.gain.linearRampToValueAtTime(0, t + 0.3);
+    osc.start(t);
+    osc.stop(t + 0.35);
+  });
+}
 
 export default function KanbanBoard() {
   const { todos, dispatch } = useTodoContext();
 
   function handleDrop(id: string, status: TaskStatus) {
     dispatch({ type: "CHANGE_STATUS", payload: { id, status } });
+    if (status === TaskStatus.DONE) cheer();
   }
 
   return (
