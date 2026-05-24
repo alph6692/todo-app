@@ -1,0 +1,60 @@
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialog {
+  background: #fff;
+  border: 2px solid #ffd4d4;
+  border-radius: 20px;
+  padding: 28px 32px;
+  min-width: 300px;
+  box-shadow: 0 8px 40px rgba(255, 107, 107, 0.2);
+}
+
+.dialog__message {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: #2d3436;
+  font-weight: 600;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dialog__btn {
+  padding: 9px 22px;
+  border: 2px solid #ffd4d4;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ff8e53;
+  transition: all 0.15s;
+}
+
+.dialog__btn:hover {
+  background: #fff5f5;
+}
+
+.dialog__btn--confirm {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 12px rgba(255, 107, 107, 0.3);
+}
+
+.dialog__btn--confirm:hover {
+  background: linear-gradient(135deg, #ff5252, #ff6b3d);
+  box-shadow: 0 5px 16px rgba(255, 107, 107, 0.4);
+}

@@ -1,0 +1,57 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef3e2 50%, #f0f4ff 100%);
+  color: #2d3436;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* 工具栏 */
+.app__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.app__view-toggle {
+  display: flex;
+  border: 2px solid #ffd4d4;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.app__view-btn {
+  padding: 7px 20px;
+  border: none;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffb3b3;
+  cursor: pointer;
+  border-right: 2px solid #ffd4d4;
+  transition: all 0.2s;
+}
+
+.app__view-btn:last-child {
+  border-right: none;
+}
+
+.app__view-btn--active {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: #fff;
+}
+

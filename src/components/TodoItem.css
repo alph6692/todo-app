@@ -1,0 +1,125 @@
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  background: #fff;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.todo-item:hover {
+  border-color: #ffd4d4;
+  box-shadow: 0 2px 12px rgba(255, 107, 107, 0.08);
+}
+
+.todo-item--done {
+  opacity: 0.65;
+  border-color: #e8f5e9;
+  background: #fafff6;
+}
+
+.todo-item--done .todo-item__title {
+  text-decoration: line-through;
+  color: #c0cfb2;
+}
+
+.todo-item__checkbox {
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  accent-color: #6bcb77;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-item__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+.todo-item__meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.todo-item__category {
+  font-size: 11px;
+  color: #ff8e53;
+  background: #fff0e8;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.todo-item__priority {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.todo-item__priority--high {
+  color: #fff;
+  background: #ff6b6b;
+}
+
+.todo-item__priority--medium {
+  color: #fff;
+  background: #ff8e53;
+}
+
+.todo-item__priority--low {
+  color: #fff;
+  background: #6bcb77;
+}
+
+.todo-item__date {
+  font-size: 11px;
+  color: #b0b0b0;
+  font-weight: 600;
+}
+
+.todo-item__date--overdue {
+  color: #ff4757;
+  background: #ffe0e0;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.todo-item__actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.todo-item__btn {
+  padding: 5px 14px;
+  border: 2px solid #ffd4d4;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff8e53;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.todo-item__btn:hover {
+  background: #fff5f5;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
