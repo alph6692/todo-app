@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/todo-app/',
   server: {
-    host: true, // 监听所有网络接口，局域网可访问
+    host: true,
     port: 5173,
   },
 })
